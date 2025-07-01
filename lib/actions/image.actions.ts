@@ -140,8 +140,18 @@ export async function getAllImages({ limit = 9, page = 1, searchQuery = '' }: {
     const totalImages = await Image.find(query).countDocuments();
     const savedImages = await Image.find().countDocuments();
 
+    const validImages = images.filter((image: any) => {
+      try {
+        new URL(image.secureURL);
+        return true;
+      } catch (error) {
+        console.error(`Invalid secureURL: ${image.secureURL} for image with publicId: ${image.publicId}`);
+        return false;
+      }
+    });
+
     return {
-      data: JSON.parse(JSON.stringify(images)),
+      data: JSON.parse(JSON.stringify(validImages)),
       totalPage: Math.ceil(totalImages / limit),
       savedImages,
     }
